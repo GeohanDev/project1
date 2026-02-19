@@ -1,0 +1,192 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  SUPER_ADMIN
+  HOD
+  PD
+  STAFF
+}
+
+enum Frequency {
+  DAILY
+  WEEKLY
+  MONTHLY
+  QUARTERLY
+  YEARLY
+  PROJECT_COMPLETION
+}
+
+enum SubmissionStatus {
+  PENDING
+  SUBMITTED
+  APPROVED
+  REJECTED
+  OVERDUE
+}
+
+enum ApprovalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model User {
+  id           String      @id @default(cuid())
+  email        String      @unique
+  name         String
+  passwordHash String
+  role         Role        @default(STAFF)
+  departmentId String?
+  department   Department? @relation(fields: [departmentId], references: [id])
+  isActive     Boolean     @default(true)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  submissions   Submission[]
+  approvals     Approval[]
+  notifications Notification[]
+}
+
+model Department {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  picName   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  users        User[]
+  reportTypes  ReportType[]
+  meetingTypes MeetingType[]
+}
+
+model ReportType {
+  id            String     @id @default(cuid())
+  name          String
+  departmentId  String
+  department    Department @relation(fields: [departmentId], references: [id])
+  frequency     Frequency
+  description   String?
+  cutoffDays    Int        @default(3)
+  toleranceDays Int        @default(2)
+  isActive      Boolean    @default(true)
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+
+  submissionPeriods SubmissionPeriod[]
+
+  @@unique([name, departmentId])
+}
+
+model MeetingType {
+  id           String     @id @default(cuid())
+  name         String
+  departmentId String
+  department   Department @relation(fields: [departmentId], references: [id])
+  frequency    Frequency
+  description  String?
+  isActive     Boolean    @default(true)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  meetingInstances MeetingInstance[]
+
+  @@unique([name, departmentId])
+}
+
+model SubmissionPeriod {
+  id           String           @id @default(cuid())
+  reportTypeId String
+  reportType   ReportType       @relation(fields: [reportTypeId], references: [id])
+  periodStart  DateTime
+  periodEnd    DateTime
+  dueDate      DateTime
+  status       SubmissionStatus @default(PENDING)
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+
+  submissions Submission[]
+}
+
+model Submission {
+  id                 String           @id @default(cuid())
+  submissionPeriodId String
+  submissionPeriod   SubmissionPeriod @relation(fields: [submissionPeriodId], references: [id])
+  submittedById      String
+  submittedBy        User             @relation(fields: [submittedById], references: [id])
+  notes              String?
+  status             SubmissionStatus @default(SUBMITTED)
+  submittedAt        DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+
+  files    SubmissionFile[]
+  approval Approval?
+}
+
+model SubmissionFile {
+  id           String     @id @default(cuid())
+  submissionId String
+  submission   Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  filename     String
+  storedName   String
+  mimeType     String
+  size         Int
+  uploadedAt   DateTime   @default(now())
+}
+
+model Approval {
+  id           String         @id @default(cuid())
+  submissionId String         @unique
+  submission   Submission     @relation(fields: [submissionId], references: [id])
+  approverId   String
+  approver     User           @relation(fields: [approverId], references: [id])
+  status       ApprovalStatus @default(PENDING)
+  comments     String?
+  decidedAt    DateTime?
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+}
+
+model MeetingInstance {
+  id            String      @id @default(cuid())
+  meetingTypeId String
+  meetingType   MeetingType @relation(fields: [meetingTypeId], references: [id])
+  scheduledDate DateTime
+  actualDate    DateTime?
+  status        String      @default("SCHEDULED")
+  notes         String?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  files MeetingFile[]
+}
+
+model MeetingFile {
+  id                String          @id @default(cuid())
+  meetingInstanceId String
+  meetingInstance   MeetingInstance @relation(fields: [meetingInstanceId], references: [id], onDelete: Cascade)
+  fileType          String
+  filename          String
+  storedName        String
+  mimeType          String
+  size              Int
+  uploadedAt        DateTime        @default(now())
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  title     String
+  message   String
+  type      String
+  isRead    Boolean  @default(false)
+  link      String?
+  createdAt DateTime @default(now())
+}
