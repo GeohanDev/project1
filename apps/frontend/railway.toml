@@ -3,7 +3,7 @@ builder = "nixpacks"
 buildCommand = "pnpm install --frozen-lockfile && pnpm --filter @reporthub/backend db:generate && pnpm build"
 
 [deploy]
-startCommand = "pnpm start"
+startCommand = "pnpm --filter @reporthub/frontend start"
 healthcheckPath = "/"
 healthcheckTimeout = 30
 restartPolicyType = "on_failure"
