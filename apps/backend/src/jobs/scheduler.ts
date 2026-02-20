@@ -109,23 +109,25 @@ async function sendReminders(): Promise<void> {
 }
 
 export function startScheduler(): void {
-  // Generate periods daily at 1am
+  const cronOptions = { timezone: 'Asia/Kuala_Lumpur' };
+
+  // Generate periods daily at 1am (UTC+8)
   cron.schedule('0 1 * * *', async () => {
     console.log('[Scheduler] Generating submission periods...');
     await generatePeriods().catch(console.error);
-  });
+  }, cronOptions);
 
   // Check overdue every hour
   cron.schedule('0 * * * *', async () => {
     console.log('[Scheduler] Checking overdue periods...');
     await markOverdue().catch(console.error);
-  });
+  }, cronOptions);
 
-  // Send reminders every day at 8am
+  // Send reminders every day at 8am (UTC+8)
   cron.schedule('0 8 * * *', async () => {
     console.log('[Scheduler] Sending reminders...');
     await sendReminders().catch(console.error);
-  });
+  }, cronOptions);
 
   // Run immediately on startup
   generatePeriods().catch(console.error);
