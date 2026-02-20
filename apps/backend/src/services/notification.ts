@@ -28,7 +28,7 @@ export async function notifyDepartmentUsers(
     where: { departmentId, isActive: true, ...(excludeUserId ? { NOT: { id: excludeUserId } } : {}) },
     select: { id: true },
   });
-  await Promise.all(users.map((u) => createNotification(u.id, input)));
+  await Promise.all(users.map((u: { id: string }) => createNotification(u.id, input)));
 }
 
 export async function notifyAdmins(input: CreateNotificationInput): Promise<void> {
@@ -36,5 +36,5 @@ export async function notifyAdmins(input: CreateNotificationInput): Promise<void
     where: { role: 'SUPER_ADMIN', isActive: true },
     select: { id: true },
   });
-  await Promise.all(admins.map((u) => createNotification(u.id, input)));
+  await Promise.all(admins.map((u: { id: string }) => createNotification(u.id, input)));
 }

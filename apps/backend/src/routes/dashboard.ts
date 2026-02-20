@@ -114,7 +114,7 @@ dashboardRouter.get('/departments', async (req: Request, res: Response) => {
   });
 
   const deptStats = await Promise.all(
-    departments.map(async (dept) => {
+    departments.map(async (dept: (typeof departments)[number]) => {
       const [pending, overdue, approved] = await Promise.all([
         prisma.submissionPeriod.count({ where: { status: 'PENDING', reportType: { departmentId: dept.id } } }),
         prisma.submissionPeriod.count({ where: { status: 'OVERDUE', reportType: { departmentId: dept.id } } }),
