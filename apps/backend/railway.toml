@@ -3,7 +3,7 @@ builder = "nixpacks"
 buildCommand = "pnpm --filter @reporthub/shared build && pnpm --filter @reporthub/backend db:generate && pnpm --filter @reporthub/backend build"
 
 [deploy]
-startCommand = "pnpm --filter @reporthub/backend db:migrate && node apps/backend/dist/index.js"
+startCommand = "pnpm --filter @reporthub/backend db:migrate && pnpm --filter @reporthub/backend db:seed && node apps/backend/dist/index.js"
 healthcheckPath = "/api/health"
 healthcheckTimeout = 30
 restartPolicyType = "on_failure"
