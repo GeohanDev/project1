@@ -15,4 +15,4 @@ cmds = [
 ]
 
 [start]
-cmd = "cd /app && node apps/backend/dist/index.js"
+cmd = "cd /app && pnpm --filter @reporthub/backend db:migrate && node apps/backend/dist/index.js"

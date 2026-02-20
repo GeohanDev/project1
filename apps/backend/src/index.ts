@@ -18,7 +18,7 @@ import { startScheduler } from './jobs/scheduler';
 
 const app: Application = express();
 const PORT = process.env.PORT || 3001;
-const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
+const FRONTEND_URL = (process.env.FRONTEND_URL || 'http://localhost:3000').trim();
 const UPLOAD_DIR = process.env.UPLOAD_DIR || './uploads';
 
 app.use(helmet());
