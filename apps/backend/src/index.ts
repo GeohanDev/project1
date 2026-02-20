@@ -1,5 +1,5 @@
 import 'express-async-errors';
-import express from 'express';
+import express, { Application } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
@@ -16,7 +16,7 @@ import { dashboardRouter } from './routes/dashboard';
 import { errorHandler } from './middleware/errorHandler';
 import { startScheduler } from './jobs/scheduler';
 
-const app = express();
+const app: Application = express();
 const PORT = process.env.PORT || 3001;
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
 const UPLOAD_DIR = process.env.UPLOAD_DIR || './uploads';

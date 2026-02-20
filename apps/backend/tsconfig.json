@@ -8,10 +8,7 @@
     "skipLibCheck": true,
     "declaration": true,
     "outDir": "./dist",
-    "rootDir": "./src",
-    "paths": {
-      "@reporthub/shared": ["../../packages/shared/src"]
-    }
+    "rootDir": "./src"
   },
   "include": ["src"],
   "exclude": ["node_modules", "dist"]

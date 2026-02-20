@@ -8,7 +8,7 @@ import { uploadSubmission } from '../utils/upload';
 import { createNotification } from '../services/notification';
 import { getCurrentPeriod } from '../utils/schedule';
 
-export const submissionsRouter = Router();
+export const submissionsRouter: Router = Router();
 submissionsRouter.use(authenticate);
 
 // List submission periods (with latest submission status)
@@ -51,7 +51,7 @@ submissionsRouter.post('/periods', authorize('SUPER_ADMIN', 'HOD'), async (req: 
   const rt = await prisma.reportType.findUnique({ where: { id: reportTypeId } });
   if (!rt) throw new AppError(404, 'Report type not found');
 
-  const period = getCurrentPeriod(rt.frequency as string, rt.cutoffDays);
+  const period = getCurrentPeriod(rt.frequency, rt.cutoffDays);
   if (!period) throw new AppError(400, 'Cannot create period for this frequency');
 
   const existing = await prisma.submissionPeriod.findFirst({
@@ -77,7 +77,7 @@ submissionsRouter.post('/periods', authorize('SUPER_ADMIN', 'HOD'), async (req: 
 
 // Submit a report
 submissionsRouter.post('/:periodId/submit', uploadSubmission.array('files', 10), async (req: Request, res: Response) => {
-  const { periodId } = req.params;
+  const { periodId } = req.params as Record<string, string>;
   const { notes } = req.body;
   const files = (req.files as Express.Multer.File[]) || [];
 
@@ -159,7 +159,7 @@ submissionsRouter.post('/:periodId/submit', uploadSubmission.array('files', 10),
 // Get single submission
 submissionsRouter.get('/:id', async (req: Request, res: Response) => {
   const submission = await prisma.submission.findUnique({
-    where: { id: req.params.id },
+    where: { id: req.params.id as string },
     include: {
       submissionPeriod: { include: { reportType: { include: { department: { select: { name: true } } } } } },
       submittedBy: { select: { id: true, name: true, email: true, role: true } },
@@ -177,8 +177,8 @@ submissionsRouter.post('/:id/approve', authorize('SUPER_ADMIN', 'HOD', 'PD'), as
   if (!['APPROVED', 'REJECTED'].includes(status)) throw new AppError(400, 'status must be APPROVED or REJECTED');
 
   const submission = await prisma.submission.findUnique({
-    where: { id: req.params.id },
-    include: { submissionPeriod: true, submittedBy: { select: { id: true, name: true } } },
+    where: { id: req.params.id as string },
+    include: { submissionPeriod: true, submittedBy: { select: { id: true, name: true } }, approval: true },
   });
   if (!submission) throw new AppError(404, 'Submission not found');
   if (submission.approval) throw new AppError(409, 'Already decided');
@@ -218,8 +218,9 @@ submissionsRouter.post('/:id/approve', authorize('SUPER_ADMIN', 'HOD', 'PD'), as
 
 // Download file
 submissionsRouter.get('/files/:submissionId/:storedName', async (req: Request, res: Response) => {
+  const { submissionId, storedName } = req.params as Record<string, string>;
   const file = await prisma.submissionFile.findFirst({
-    where: { submissionId: req.params.submissionId, storedName: req.params.storedName },
+    where: { submissionId, storedName },
   });
   if (!file) throw new AppError(404, 'File not found');
 

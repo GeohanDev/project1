@@ -6,7 +6,7 @@ import { authenticate, authorize } from '../middleware/auth';
 import { AppError } from '../middleware/errorHandler';
 import { uploadMeeting } from '../utils/upload';
 
-export const meetingInstancesRouter = Router();
+export const meetingInstancesRouter: Router = Router();
 meetingInstancesRouter.use(authenticate);
 
 meetingInstancesRouter.get('/', async (req: Request, res: Response) => {
@@ -40,7 +40,7 @@ meetingInstancesRouter.get('/', async (req: Request, res: Response) => {
 
 meetingInstancesRouter.get('/:id', async (req: Request, res: Response) => {
   const instance = await prisma.meetingInstance.findUnique({
-    where: { id: req.params.id },
+    where: { id: req.params.id as string },
     include: {
       meetingType: { include: { department: { select: { name: true } } } },
       files: true,
@@ -68,7 +68,7 @@ meetingInstancesRouter.post('/', authorize('SUPER_ADMIN', 'HOD', 'PD'), async (r
 meetingInstancesRouter.put('/:id', authorize('SUPER_ADMIN', 'HOD', 'PD'), async (req: Request, res: Response) => {
   const { scheduledDate, actualDate, status, notes } = req.body;
   const instance = await prisma.meetingInstance.update({
-    where: { id: req.params.id },
+    where: { id: req.params.id as string },
     data: {
       ...(scheduledDate ? { scheduledDate: new Date(scheduledDate) } : {}),
       ...(actualDate ? { actualDate: new Date(actualDate) } : {}),
@@ -86,7 +86,7 @@ meetingInstancesRouter.post('/:id/files', uploadMeeting.array('files', 10), asyn
   const files = (req.files as Express.Multer.File[]) || [];
   if (!files.length) throw new AppError(400, 'No files provided');
 
-  const instance = await prisma.meetingInstance.findUnique({ where: { id: req.params.id } });
+  const instance = await prisma.meetingInstance.findUnique({ where: { id: req.params.id as string } });
   if (!instance) throw new AppError(404, 'Meeting instance not found');
 
   const created = await Promise.all(
@@ -108,8 +108,9 @@ meetingInstancesRouter.post('/:id/files', uploadMeeting.array('files', 10), asyn
 
 // Download meeting file
 meetingInstancesRouter.get('/files/:instanceId/:storedName', async (req: Request, res: Response) => {
+  const { instanceId, storedName } = req.params as Record<string, string>;
   const file = await prisma.meetingFile.findFirst({
-    where: { meetingInstanceId: req.params.instanceId, storedName: req.params.storedName },
+    where: { meetingInstanceId: instanceId, storedName },
   });
   if (!file) throw new AppError(404, 'File not found');
 

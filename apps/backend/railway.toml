@@ -1,6 +1,6 @@
 [build]
 builder = "nixpacks"
-buildCommand = "pnpm --filter @reporthub/backend db:generate && pnpm --filter @reporthub/backend build"
+buildCommand = "pnpm --filter @reporthub/shared build && pnpm --filter @reporthub/backend db:generate && pnpm --filter @reporthub/backend build"
 
 [deploy]
 startCommand = "node apps/backend/dist/index.js"

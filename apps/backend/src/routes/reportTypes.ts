@@ -3,7 +3,7 @@ import { prisma } from '../utils/prisma';
 import { authenticate, authorize } from '../middleware/auth';
 import { AppError } from '../middleware/errorHandler';
 
-export const reportTypesRouter = Router();
+export const reportTypesRouter: Router = Router();
 reportTypesRouter.use(authenticate);
 
 reportTypesRouter.get('/', async (req: Request, res: Response) => {
@@ -27,7 +27,7 @@ reportTypesRouter.get('/', async (req: Request, res: Response) => {
 
 reportTypesRouter.get('/:id', async (req: Request, res: Response) => {
   const rt = await prisma.reportType.findUnique({
-    where: { id: req.params.id },
+    where: { id: req.params.id as string },
     include: {
       department: { select: { name: true } },
       submissionPeriods: {
@@ -60,7 +60,7 @@ reportTypesRouter.post('/', authorize('SUPER_ADMIN', 'HOD'), async (req: Request
 reportTypesRouter.put('/:id', authorize('SUPER_ADMIN', 'HOD'), async (req: Request, res: Response) => {
   const { name, description, cutoffDays, toleranceDays, isActive } = req.body;
   const rt = await prisma.reportType.update({
-    where: { id: req.params.id },
+    where: { id: req.params.id as string },
     data: { name, description, cutoffDays, toleranceDays, isActive },
     include: { department: { select: { name: true } } },
   });

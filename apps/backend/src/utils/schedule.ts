@@ -3,15 +3,13 @@ import {
   startOfMonth, endOfMonth, startOfQuarter, endOfQuarter,
   startOfYear, endOfYear, format,
 } from 'date-fns';
-import { Frequency } from '@reporthub/shared';
-
 export interface PeriodRange {
   periodStart: Date;
   periodEnd: Date;
   dueDate: Date;
 }
 
-export function getCurrentPeriod(frequency: Frequency, cutoffDays: number, referenceDate: Date = new Date()): PeriodRange | null {
+export function getCurrentPeriod(frequency: string, cutoffDays: number, referenceDate: Date = new Date()): PeriodRange | null {
   const now = referenceDate;
 
   switch (frequency) {
@@ -52,7 +50,7 @@ export function getCurrentPeriod(frequency: Frequency, cutoffDays: number, refer
   }
 }
 
-export function formatPeriodLabel(frequency: Frequency, periodStart: Date, periodEnd: Date): string {
+export function formatPeriodLabel(frequency: string, periodStart: Date, periodEnd: Date): string {
   switch (frequency) {
     case 'DAILY':
       return format(periodStart, 'dd MMM yyyy');

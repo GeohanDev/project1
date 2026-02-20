@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, Frequency } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
@@ -408,7 +408,7 @@ async function main() {
         create: {
           name: r.name,
           departmentId: dept.id,
-          frequency: r.frequency as string,
+          frequency: r.frequency as Frequency,
           description: r.description || null,
           cutoffDays: r.cutoffDays ?? 3,
           toleranceDays: 2,
@@ -423,7 +423,7 @@ async function main() {
         create: {
           name: m.name,
           departmentId: dept.id,
-          frequency: m.frequency as string,
+          frequency: m.frequency as Frequency,
           description: m.description || null,
         },
       });

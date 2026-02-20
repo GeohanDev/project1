@@ -6,7 +6,7 @@ import { AppError } from '../middleware/errorHandler';
 import { authenticate } from '../middleware/auth';
 import { AuthUser } from '@reporthub/shared';
 
-export const authRouter = Router();
+export const authRouter: Router = Router();
 
 authRouter.post('/login', async (req: Request, res: Response) => {
   const { email, password } = req.body;

@@ -3,7 +3,7 @@ import { prisma } from '../utils/prisma';
 import { authenticate, authorize } from '../middleware/auth';
 import { AppError } from '../middleware/errorHandler';
 
-export const departmentsRouter = Router();
+export const departmentsRouter: Router = Router();
 departmentsRouter.use(authenticate);
 
 departmentsRouter.get('/', async (_req: Request, res: Response) => {
@@ -18,7 +18,7 @@ departmentsRouter.get('/', async (_req: Request, res: Response) => {
 
 departmentsRouter.get('/:id', async (req: Request, res: Response) => {
   const dept = await prisma.department.findUnique({
-    where: { id: req.params.id },
+    where: { id: req.params.id as string },
     include: {
       reportTypes: { orderBy: [{ frequency: 'asc' }, { name: 'asc' }] },
       meetingTypes: { orderBy: { name: 'asc' } },
@@ -42,7 +42,7 @@ departmentsRouter.post('/', authorize('SUPER_ADMIN'), async (req: Request, res: 
 departmentsRouter.put('/:id', authorize('SUPER_ADMIN'), async (req: Request, res: Response) => {
   const { name, picName } = req.body;
   const dept = await prisma.department.update({
-    where: { id: req.params.id },
+    where: { id: req.params.id as string },
     data: { name, picName },
   });
   res.json({ success: true, data: dept });

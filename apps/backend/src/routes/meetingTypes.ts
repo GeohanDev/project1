@@ -3,7 +3,7 @@ import { prisma } from '../utils/prisma';
 import { authenticate, authorize } from '../middleware/auth';
 import { AppError } from '../middleware/errorHandler';
 
-export const meetingTypesRouter = Router();
+export const meetingTypesRouter: Router = Router();
 meetingTypesRouter.use(authenticate);
 
 meetingTypesRouter.get('/', async (req: Request, res: Response) => {
@@ -27,7 +27,7 @@ meetingTypesRouter.get('/', async (req: Request, res: Response) => {
 
 meetingTypesRouter.get('/:id', async (req: Request, res: Response) => {
   const mt = await prisma.meetingType.findUnique({
-    where: { id: req.params.id },
+    where: { id: req.params.id as string },
     include: {
       department: { select: { name: true } },
       meetingInstances: {
@@ -53,7 +53,7 @@ meetingTypesRouter.post('/', authorize('SUPER_ADMIN', 'HOD'), async (req: Reques
 meetingTypesRouter.put('/:id', authorize('SUPER_ADMIN', 'HOD'), async (req: Request, res: Response) => {
   const { name, description, frequency, isActive } = req.body;
   const mt = await prisma.meetingType.update({
-    where: { id: req.params.id },
+    where: { id: req.params.id as string },
     data: { name, description, frequency, isActive },
     include: { department: { select: { name: true } } },
   });

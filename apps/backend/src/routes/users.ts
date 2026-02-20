@@ -4,7 +4,7 @@ import { prisma } from '../utils/prisma';
 import { authenticate, authorize } from '../middleware/auth';
 import { AppError } from '../middleware/errorHandler';
 
-export const usersRouter = Router();
+export const usersRouter: Router = Router();
 usersRouter.use(authenticate);
 
 // List users - SUPER_ADMIN sees all, HOD/PD see own dept
@@ -57,7 +57,7 @@ usersRouter.put('/:id', authorize('SUPER_ADMIN'), async (req: Request, res: Resp
   if (password) updateData.passwordHash = await bcrypt.hash(password, 12);
 
   const user = await prisma.user.update({
-    where: { id: req.params.id },
+    where: { id: req.params.id as string },
     data: updateData,
     select: { id: true, email: true, name: true, role: true, departmentId: true, isActive: true },
   });
@@ -67,6 +67,6 @@ usersRouter.put('/:id', authorize('SUPER_ADMIN'), async (req: Request, res: Resp
 // Delete user - SUPER_ADMIN only
 usersRouter.delete('/:id', authorize('SUPER_ADMIN'), async (req: Request, res: Response) => {
   if (req.params.id === req.user!.id) throw new AppError(400, 'Cannot delete yourself');
-  await prisma.user.delete({ where: { id: req.params.id } });
+  await prisma.user.delete({ where: { id: req.params.id as string } });
   res.json({ success: true, message: 'User deleted' });
 });

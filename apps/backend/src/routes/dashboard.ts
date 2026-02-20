@@ -3,7 +3,7 @@ import { prisma } from '../utils/prisma';
 import { authenticate } from '../middleware/auth';
 import { startOfMonth, endOfMonth } from 'date-fns';
 
-export const dashboardRouter = Router();
+export const dashboardRouter: Router = Router();
 dashboardRouter.use(authenticate);
 
 dashboardRouter.get('/', async (req: Request, res: Response) => {
